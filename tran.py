@@ -1,27 +1,31 @@
-'''
+"""
     将csv文件的连续7行转化为一行，并保存为新的csv文件
-'''
-
-
-
+"""
 
 import pandas as pd
 
-data = pd.read_csv('daily.csv')
-# 标签
+data = pd.read_csv("daily.csv")
 
-# 新的 CSV 文件路径
-output_file = 'output.csv'
-# 创建一个空的 DataFrame
+OUTPUT_PATH = "output.csv"
+
 output_df = pd.DataFrame()
-for line in range(7, data.shape[0]):
+
+for line in range(1, data.shape[0] - 8):
     newline = []
     for i in range(7):
-        newline += data.iloc[line - i].tolist()
-        newline=newline[1:-3]
+        newline += data.iloc[line + i][3:].tolist()
+        newline += [
+            data.iloc[line + i].tolist()[6] / data.iloc[line + i + 1].tolist()[6]
+        ]
+
     # 将 newline 作为一行添加到 DataFrame
+    newline += [
+        data.iloc[line - 1].tolist()[6],
+        (data.iloc[line - 1].tolist()[6] / data.iloc[line].tolist()[6] - 1) * 100,
+    ]
     new_row = pd.DataFrame([newline])
     output_df = pd.concat([output_df, new_row], ignore_index=True)
 
 # 将 DataFrame 写入 CSV 文件
-output_df.to_csv(output_file, index=False, header=False)
+print(output_df)
+output_df.to_csv(OUTPUT_PATH, index=False, header=False)
